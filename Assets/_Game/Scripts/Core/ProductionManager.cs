@@ -290,10 +290,20 @@ namespace EngineAssemblyTycoon.Core
         #region Event Handlers
         private void OnMachinePartCompleted(Part part)
         {
-            UnityEngine.Debug.Log($"Machine completed part: {part.PartID}");
-            
+            Debug.Log($"<color=cyan>Machine completed part: {part.PartID}</color>");
+
+            // Find which machine completed this part
+            Machine sourceMachine = registeredMachines.Values.FirstOrDefault(m =>
+                m.GetComponent<MachineQueue>()?.GetCurrentPart() == part);
+
             // Route to next station
             RoutePartToNextStation(part);
+
+            // Clear the output buffer now that part has been routed
+            if (sourceMachine != null)
+            {
+                sourceMachine.ClearOutputBuffer();
+            }
         }
 
         private void OnMachinePartFailed(Part part)

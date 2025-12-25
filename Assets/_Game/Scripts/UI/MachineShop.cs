@@ -15,8 +15,10 @@ namespace EngineAssemblyTycoon.UI
         [Tooltip("Drag your CNC_Mill_Basic ScriptableObject here")]
         [SerializeField] private MachineSO cncMachineData;
         
-        [Tooltip("Add more machine types here in future")]
+        [Tooltip("Drag your CNC_Lathe_Basic ScriptableObject here")]
         [SerializeField] private MachineSO latheMachineData;
+
+        [Tooltip("Drag your Assembly_Station_Basic ScriptableObject here")]
         [SerializeField] private MachineSO assemblyMachineData;
         #endregion
 
@@ -64,10 +66,23 @@ namespace EngineAssemblyTycoon.UI
         /// </summary>
         public void OnBuyLathe()
         {
-            if (latheMachineData != null)
+            if (latheMachineData == null)
             {
-                MachinePlacement.Instance?.StartPlacingMachine(latheMachineData);
+                UnityEngine.Debug.LogError("Lathe Machine Data not assigned!");
+                return;
             }
+
+            if (GameManager.Instance.Cash < latheMachineData.PurchaseCost)
+            {
+                UnityEngine.Debug.LogWarning($"Not enough cash! Need ${latheMachineData.PurchaseCost:N0}");
+                return;
+            }
+
+            if (MachinePlacement.Instance != null)
+            {
+                MachinePlacement.Instance.StartPlacingMachine(latheMachineData);
+            }
+
         }
 
         /// <summary>
@@ -75,9 +90,20 @@ namespace EngineAssemblyTycoon.UI
         /// </summary>
         public void OnBuyAssemblyStation()
         {
-            if (assemblyMachineData != null)
+            if (assemblyMachineData == null)
             {
-                MachinePlacement.Instance?.StartPlacingMachine(assemblyMachineData);
+                UnityEngine.Debug.LogError("Assembly Machine Data not assigned!");
+                return;
+            }
+
+            if (GameManager.Instance.Cash < assemblyMachineData.PurchaseCost)
+            {
+                UnityEngine.Debug.LogWarning($"Not enough cash! Need ${assemblyMachineData.PurchaseCost:N0}");
+            }
+
+            if (MachinePlacement.Instance != null)
+            {
+                MachinePlacement.Instance.StartPlacingMachine(assemblyMachineData);
             }
         }
         #endregion

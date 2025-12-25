@@ -99,9 +99,9 @@ namespace EngineAssemblyTycoon.Machines
         /// </summary>
         public bool ProcessNextPart()
         {
-            if (waitingParts.Count == 0)
+            if (machine == null)
             {
-                UnityEngine.Debug.Log($"No parts in queue at {machineComponent?.MachineID}");
+                UnityEngine.Debug.LogError("Cannot process - machine reference is null!");
                 return false;
             }
 
@@ -111,14 +111,21 @@ namespace EngineAssemblyTycoon.Machines
                 return false;
             }
 
+            // Don't start new work if machine isn't idle
             if (machineComponent.Status != MachineStatus.Idle)
             {
-                UnityEngine.Debug.LogWarning($"Machine {machineComponent.MachineID} is busy ({machineComponent.Status})");
+                UnityEngine.Debug.Log($"{machineComponent.MachineID}: Still processing. Queue size: {waitingParts.Count}");
+                return false;
+            }
+
+            if (waitingParts.Count == 0)
+            {
+                UnityEngine.Debug.Log($"{machineComponent.MachineID}: Queue empty. Waiting for parts.");
                 return false;
             }
 
             Core.Part nextPart = waitingParts.Dequeue();
-            
+
             // Record this operation in part's history
             nextPart.RecordOperation(
                 machineComponent.MachineData?.DisplayName ?? "Unknown Operation",
@@ -127,8 +134,8 @@ namespace EngineAssemblyTycoon.Machines
 
             // Start processing
             machineComponent.StartCycle(nextPart);
-            
-            UnityEngine.Debug.Log($"Started processing {nextPart.PartID} on {machineComponent.MachineID}. Queue remaining: {waitingParts.Count}");
+
+            UnityEngine.Debug.Log($"<color=green>Started processing {nextPart.PartID} on {machineComponent.MachineID}. Queue remaining: {waitingParts.Count}</color>");
 
             return true;
         }

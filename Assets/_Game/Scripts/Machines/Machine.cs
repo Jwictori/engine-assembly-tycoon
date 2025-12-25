@@ -31,6 +31,7 @@ namespace EngineAssemblyTycoon.Machines
         [Header("Runtime State")]
         [SerializeField] private MachineStatus currentStatus = MachineStatus.Idle;
         [SerializeField] private Part currentPart; // Part being processed
+        [SerializeField] private Part outputPart; // Part after processing
         [SerializeField] private float cycleProgress = 0f; // 0.0 to 1.0
         
         [Header("Performance Metrics")]
@@ -89,6 +90,12 @@ namespace EngineAssemblyTycoon.Machines
                 return;
             }
 
+            if (outputPart != null)
+            {
+                Debug.LogWarning($"{machineID}: Cannot start cycle, output part slot is occupied");
+                return;
+            }
+
             currentPart = part;
             cycleProgress = 0f;
             ChangeStatus(MachineStatus.Running);
@@ -135,27 +142,34 @@ namespace EngineAssemblyTycoon.Machines
 
         private void CompleteCycle()
         {
+            
+            if (currentPart == null)
+            {
+                Debug.LogError($"{machineID}: No part to complete cycle on!");
+                ChangeStatus(MachineStatus.Idle);
+                return;
+            }
+
             // Determine if part passes or fails (quality check)
             bool partPassed = CheckQuality();
 
             if (partPassed)
             {
                 Debug.Log($"{machineID}: Part {currentPart.PartID} completed successfully!");
-                OnPartCompleted?.Invoke(currentPart);
-                if (ProductionManager.Instance != null)
-                {
-                    ProductionManager.Instance.RegisterPart(currentPart);
-                }
+                
+                outputPart = currentPart; // Move part to output slot'
+                currentPart = null;
+
+                OnPartCompleted?.Invoke(outputPart);
+                // Part will be routed in the event handler
             }
             else
             {
                 Debug.LogWarning($"{machineID}: Part {currentPart.PartID} FAILED quality check (scrapped)");
                 scrapProduced++;
                 OnPartFailed?.Invoke(currentPart);
-                if (ProductionManager.Instance != null)
-                {
-                    ProductionManager.Instance.RegisterPart(currentPart);
-                }
+                currentPart = null;
+                // Part will be handled in the event handler
             }
 
             // Update metrics
@@ -166,6 +180,24 @@ namespace EngineAssemblyTycoon.Machines
             currentPart = null;
             cycleProgress = 0f;
             ChangeStatus(MachineStatus.Idle);
+        }
+
+        /// <summary>
+        /// Clears the output buffer after part has been routed
+        /// </summary>
+        public void ClearOutputBuffer()
+        {
+            if (outputPart != null)
+            {
+                Debug.Log($"{machineID}: Output buffer cleared. Part {outputPart.PartID} routed successfully.");
+                outputPart = null;
+
+                // Try to process next part in queue if available
+                if (machineQueue != null)
+                {
+                    machineQueue.ProcessNextPart();
+                }
+            }
         }
 
         private bool CheckQuality()
@@ -219,6 +251,27 @@ namespace EngineAssemblyTycoon.Machines
         {
             toolWear = 0f;
             Debug.Log($"{machineID}: Tool wear reset to 0%");
+        }
+        #endregion
+
+        #region Debug Visualization
+        private void OnGUI()
+        {
+            if (machineQueue == null) return;
+
+            // Get screen position above machine
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2);
+            if (screenPos.z < 0) return;
+
+            // Display queue info
+            int queueCount = machineQueue.QueueCount;
+            string outputStatus = outputPart != null ? $"[OUT: {outputPart.PartID}]" : "";
+            string currentStatus = currentPart != null ? $"[PROC: {currentPart.PartID}]" : "";
+
+            GUI.Label(new Rect(screenPos.x - 100, Screen.height - screenPos.y - 40, 200, 60),
+                $"<color=yellow><b>{machineID}</b>\n" +
+                $"IN Queue: {queueCount} {currentStatus}\n" +
+                $"{outputStatus}</color>");
         }
         #endregion
     }
