@@ -12,7 +12,7 @@ namespace EngineAssemblyTycoon.Core
         #region Settings
         [Header("Pan Settings")]
         [SerializeField] private float panSpeed = 10f;
-        [SerializeField] private bool edgePanning = true;
+        [SerializeField] private bool edgePanning = false;
         [SerializeField] private float edgePanBorder = 20f; // Pixels from screen edge
         
         [Header("Zoom Settings")]

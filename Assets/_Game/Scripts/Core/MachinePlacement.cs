@@ -249,10 +249,24 @@ namespace EngineAssemblyTycoon.Core
 
             // Add Machine component
             Machine machineComponent = machineObj.AddComponent<Machine>();
-            
+
+            // Initialize machine with data
+            string uniqueID = machineDataToPlace.MachineID + "_" + System.Guid.NewGuid().ToString().Substring(0, 4);
+            machineComponent.Initialize(machineDataToPlace, uniqueID);
+
             // Add visual component
             MachineVisual visualComponent = machineObj.AddComponent<MachineVisual>();
             visualComponent.Initialize(machineDataToPlace);
+
+            // Add machine queue component (for production)
+            MachineQueue queueComponent = machineObj.AddComponent<MachineQueue>();
+            queueComponent.enabled = true;
+
+            // Register with ProductionManager
+            if (ProductionManager.Instance != null)
+            {
+                ProductionManager.Instance.RegisterMachine(machineComponent);
+            }
 
             // Occupy grid cells
             GridManager.Instance.OccupyArea(

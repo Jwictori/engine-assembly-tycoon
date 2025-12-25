@@ -48,6 +48,19 @@ namespace EngineAssemblyTycoon.Machines
         public MachineSO MachineData => machineData;
         #endregion
 
+        #region Initialization
+        /// <summary>
+        /// Initialize machine with data (called when placed)
+        /// </summary>
+        public void Initialize(MachineSO data, string id)
+        {
+            machineData = data;
+            machineID = id;
+
+            UnityEngine.Debug.Log($"Machine initialized: {machineID} with data: {data.DisplayName}");
+        }
+        #endregion
+
         #region Events
         public event Action<Part> OnPartCompleted;
         public event Action<Part> OnPartFailed; // Scrapped
@@ -129,12 +142,20 @@ namespace EngineAssemblyTycoon.Machines
             {
                 Debug.Log($"{machineID}: Part {currentPart.PartID} completed successfully!");
                 OnPartCompleted?.Invoke(currentPart);
+                if (ProductionManager.Instance != null)
+                {
+                    ProductionManager.Instance.RegisterPart(currentPart);
+                }
             }
             else
             {
                 Debug.LogWarning($"{machineID}: Part {currentPart.PartID} FAILED quality check (scrapped)");
                 scrapProduced++;
                 OnPartFailed?.Invoke(currentPart);
+                if (ProductionManager.Instance != null)
+                {
+                    ProductionManager.Instance.RegisterPart(currentPart);
+                }
             }
 
             // Update metrics
