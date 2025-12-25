@@ -228,10 +228,47 @@ namespace EngineAssemblyTycoon.DevTools
         #region Machines Section
         private void DrawMachinesSection()
         {
-            // TODO: Week 3 - Add machine debug options
-            GUILayout.Label("(Machine controls coming in Week 3)");
-            
-            // Placeholder buttons for future
+            // Machine state viewer
+            if (GUILayout.Button("🔍 Show Machine States"))
+            {
+                var machines = FindObjectsByType<Machines.Machine>(FindObjectsSortMode.None);
+                UnityEngine.Debug.Log("=== MACHINE STATES ===");
+
+                if (machines.Length == 0)
+                {
+                    UnityEngine.Debug.Log("No machines found in scene.");
+                }
+                else
+                {
+                    foreach (var m in machines)
+                    {
+                        var queue = m.GetComponent<Machines.MachineQueue>();
+
+                        // Use reflection to access private fields
+                        var currentPartField = m.GetType().GetField("currentPart",
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        var outputPartField = m.GetType().GetField("outputPart",
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                        var currentPart = currentPartField?.GetValue(m) as Core.Part;
+                        var outputPart = outputPartField?.GetValue(m) as Core.Part;
+
+                        UnityEngine.Debug.Log(
+                            $"<color=cyan>{m.MachineID}</color>: " +
+                            $"Status=<b>{m.Status}</b>, " +
+                            $"Queue=<b>{queue?.QueueCount ?? 0}</b>, " +
+                            $"Current=<b>{currentPart?.PartID ?? "None"}</b>, " +
+                            $"Output=<b>{outputPart?.PartID ?? "None"}</b>"
+                        );
+                    }
+                    UnityEngine.Debug.Log($"Total machines: {machines.Length}");
+                }
+            }
+
+            GUILayout.Space(5);
+
+            // Placeholder buttons for future features
+            GUILayout.Label("(Additional machine controls coming soon)");
             GUI.enabled = false;
             if (GUILayout.Button("Fix All Broken Machines")) { }
             if (GUILayout.Button("Reset All Tool Wear")) { }

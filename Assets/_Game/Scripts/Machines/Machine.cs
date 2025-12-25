@@ -40,6 +40,10 @@ namespace EngineAssemblyTycoon.Machines
         [SerializeField] private int scrapProduced = 0;
         #endregion
 
+        #region Components
+        private MachineQueue machineQueue;
+        #endregion
+
         #region Properties
         public string MachineID => machineID;
         public MachineStatus Status => currentStatus;
@@ -69,6 +73,10 @@ namespace EngineAssemblyTycoon.Machines
         #endregion
 
         #region Unity Lifecycle
+        private void Awake()
+        {
+            machineQueue = GetComponent<MachineQueue>();
+        }
         private void Update()
         {
             if (currentStatus == MachineStatus.Running && currentPart != null)
@@ -177,7 +185,6 @@ namespace EngineAssemblyTycoon.Machines
             IncrementToolWear();
 
             // Reset for next cycle
-            currentPart = null;
             cycleProgress = 0f;
             ChangeStatus(MachineStatus.Idle);
         }

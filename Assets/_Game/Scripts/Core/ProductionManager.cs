@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using EngineAssemblyTycoon.Machines;
+using System.Linq;
 
 namespace EngineAssemblyTycoon.Core
 {
@@ -216,10 +217,15 @@ namespace EngineAssemblyTycoon.Core
                 string machineTypeName = machine.MachineData.Type.ToString().Replace("_", " ");
                 UnityEngine.Debug.Log($"[ROUTING] Checking machine: {machine.MachineID}, Type: {machineTypeName}");
 
-                // Check if machine type matches operation
-                if (operationName.Contains(machineTypeName) || machineTypeName.Contains(operationName.Split('-')[0].Trim()))
+                // Check if machine type matches operation (normalize both by replacing underscores)
+                string normalizedOperation = operationName.Replace("_", " ");
+                string normalizedMachineType = machineTypeName.Replace("_", " ");
+
+                if (normalizedOperation.Equals(normalizedMachineType, System.StringComparison.OrdinalIgnoreCase) ||
+                    normalizedOperation.Contains(normalizedMachineType, System.StringComparison.OrdinalIgnoreCase) ||
+                    normalizedMachineType.Contains(normalizedOperation, System.StringComparison.OrdinalIgnoreCase))
                 {
-                    UnityEngine.Debug.Log($"[ROUTING] Match found! {machineTypeName} matches '{operationName}'");
+                    UnityEngine.Debug.Log($"[ROUTING] Match found! '{normalizedMachineType}' matches '{normalizedOperation}'");
 
                     // Check if machine has capacity (queue not full)
                     MachineQueue queue = machine.GetComponent<MachineQueue>();
@@ -292,17 +298,26 @@ namespace EngineAssemblyTycoon.Core
         {
             Debug.Log($"<color=cyan>Machine completed part: {part.PartID}</color>");
 
-            // Find which machine completed this part
-            Machine sourceMachine = registeredMachines.Values.FirstOrDefault(m =>
-                m.GetComponent<MachineQueue>()?.GetCurrentPart() == part);
+            // Find machine by checking OUTPUT buffer (not current part)
+            Machine sourceMachine = allMachines.FirstOrDefault(m =>
+            {
+                // Access outputPart using reflection since it's private
+                var outputField = typeof(Machine).GetField("outputPart",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                Part outputPart = outputField?.GetValue(m) as Part;
+                return outputPart == part;
+            });
 
-            // Route to next station
             RoutePartToNextStation(part);
 
-            // Clear the output buffer now that part has been routed
             if (sourceMachine != null)
             {
+                Debug.Log($"Clearing output buffer on {sourceMachine.MachineID}");
                 sourceMachine.ClearOutputBuffer();
+            }
+            else
+            {
+                Debug.LogWarning($"Could not find source machine for completed part {part.PartID}!");
             }
         }
 

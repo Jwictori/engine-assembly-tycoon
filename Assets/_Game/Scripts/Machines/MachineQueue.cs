@@ -23,6 +23,7 @@ namespace EngineAssemblyTycoon.Machines
 
         #region Properties
         public int QueueSize => waitingParts.Count;
+        public int QueueCount => waitingParts.Count;
         public int MaxQueueSize => maxQueueSize;
         public bool IsFull => waitingParts.Count >= maxQueueSize;
         public bool HasWaitingParts => waitingParts.Count > 0;
@@ -99,7 +100,7 @@ namespace EngineAssemblyTycoon.Machines
         /// </summary>
         public bool ProcessNextPart()
         {
-            if (machine == null)
+            if (machineComponent == null)
             {
                 UnityEngine.Debug.LogError("Cannot process - machine reference is null!");
                 return false;
