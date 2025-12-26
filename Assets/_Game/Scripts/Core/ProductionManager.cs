@@ -40,6 +40,7 @@ namespace EngineAssemblyTycoon.Core
         private int totalPartsProduced = 0;
         private int totalPartsScrapped = 0;
         private int totalPartsDelivered = 0;
+        private float productionStartTime = 0f; // Track when production started
         #endregion
 
         #region Properties
@@ -65,6 +66,9 @@ namespace EngineAssemblyTycoon.Core
         {
             // Find all machines in scene
             RefreshMachineList();
+            
+            // Record production start time
+            productionStartTime = Time.time;
             
             UnityEngine.Debug.Log($"ProductionManager initialized. Found {allMachines.Count} machines.");
         }
@@ -361,6 +365,14 @@ namespace EngineAssemblyTycoon.Core
         }
 
         /// <summary>
+        /// Get production runtime in seconds
+        /// </summary>
+        public float GetProductionTime()
+        {
+            return Time.time - productionStartTime;
+        }
+
+        /// <summary>
         /// Reset all production metrics
         /// </summary>
         [ContextMenu("Reset Production Metrics")]
@@ -369,28 +381,11 @@ namespace EngineAssemblyTycoon.Core
             totalPartsProduced = 0;
             totalPartsScrapped = 0;
             totalPartsDelivered = 0;
+            productionStartTime = Time.time;
             UnityEngine.Debug.Log("Production metrics reset");
         }
         #endregion
 
-        #region Debug
-        private void OnGUI()
-        {
-            // Simple on-screen stats (top-right corner)
-            GUIStyle style = new GUIStyle(GUI.skin.label);
-            style.alignment = TextAnchor.UpperRight;
-            style.fontSize = 14;
-            
-            string stats = $"Production Stats:\n";
-            stats += $"Active Parts: {activeParts.Count}\n";
-            stats += $"Total Produced: {totalPartsProduced}\n";
-            stats += $"Delivered: {totalPartsDelivered}\n";
-            stats += $"Scrapped: {totalPartsScrapped}\n";
-            stats += $"Efficiency: {GetEfficiency() * 100f:F1}%\n";
-            stats += $"Scrap Rate: {GetScrapRate() * 100f:F1}%";
-            
-            GUI.Label(new Rect(Screen.width - 220, 180, 200, 150), stats, style);
-        }
-        #endregion
+        // OnGUI debug overlay removed - replaced by ProductionMetricsUI sidebar panel
     }
 }

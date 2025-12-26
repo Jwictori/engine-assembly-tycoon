@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddbb518c176d114a8213201fa4e8120, type: 3}
   m_Name: Assembly_Station_Basic
   m_EditorClassIdentifier: Assembly-CSharp::EngineAssemblyTycoon.Machines.MachineSO
-  MachineID: MACHINE_001
-  DisplayName: CNC Mill
-  Type: 0
-  PurchaseCost: 35000
-  MaintenanceCost: 800
-  PowerConsumption: 8
-  BaseCycleTime: 12
-  BaseScrapRate: 0.04
+  MachineID: ASSEMBLY_01
+  DisplayName: Assembly Station (Basic)
+  Type: 2
+  PurchaseCost: 12000
+  MaintenanceCost: 200
+  PowerConsumption: 2
+  BaseCycleTime: 0.1
+  BaseScrapRate: 0.08
   Precision: 0.01
-  GridWidth: 3
-  GridHeight: 3
+  GridWidth: 2
+  GridHeight: 2
   MachineSprite: {fileID: 0}
   Icon: {fileID: 0}

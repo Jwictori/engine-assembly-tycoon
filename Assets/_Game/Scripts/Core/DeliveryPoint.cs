@@ -107,8 +107,26 @@ namespace EngineAssemblyTycoon.Core
 
         private void ShowDeliveryEffect(Part part)
         {
-            // TODO: Week 3 - Add particle effect, sound, etc.
-            // For now, just a log message
+            // Visual feedback - destroy the part GameObject after a short delay
+            // This represents it being shipped out
+            StartCoroutine(DestroyPartAfterDelay(part, 0.5f));
+        }
+
+        private System.Collections.IEnumerator DestroyPartAfterDelay(Part part, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            
+            if (part != null && part.gameObject != null)
+            {
+                // Unregister from production manager first
+                if (ProductionManager.Instance != null)
+                {
+                    ProductionManager.Instance.UnregisterPart(part);
+                }
+                
+                Debug.Log($"Destroying delivered part: {part.PartID}");
+                Destroy(part.gameObject);
+            }
         }
         #endregion
 

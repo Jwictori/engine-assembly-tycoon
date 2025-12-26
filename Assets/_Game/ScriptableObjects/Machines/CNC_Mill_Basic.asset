@@ -18,7 +18,7 @@ MonoBehaviour:
   PurchaseCost: 35000
   MaintenanceCost: 800
   PowerConsumption: 8
-  BaseCycleTime: 12
+  BaseCycleTime: 0.1
   BaseScrapRate: 0.04
   Precision: 0.01
   GridWidth: 3

@@ -20,9 +20,9 @@ MonoBehaviour:
   BaseSalePrice: 400
   LaborHours: 2.5
   ProductionSteps:
-  - CNC - Precision Machining
-  - Lathe - Rough Machining
-  - Assembly - Cylinder Head
+  - CNC_Mill
+  - CNC_Lathe
+  - Assembly
   - Assembly - Bolt Tightening
   - QC - Dimensional Check
   MaxScrapRate: 0.03

@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddbb518c176d114a8213201fa4e8120, type: 3}
   m_Name: CNC_Lathe_Basic
   m_EditorClassIdentifier: Assembly-CSharp::EngineAssemblyTycoon.Machines.MachineSO
-  MachineID: MACHINE_001
-  DisplayName: CNC Mill
-  Type: 0
-  PurchaseCost: 35000
-  MaintenanceCost: 800
+  MachineID: LATHE_01
+  DisplayName: CNC Lathe (Basic)
+  Type: 1
+  PurchaseCost: 28000
+  MaintenanceCost: 600
   PowerConsumption: 8
-  BaseCycleTime: 12
-  BaseScrapRate: 0.04
+  BaseCycleTime: 0.1
+  BaseScrapRate: 0.05
   Precision: 0.01
-  GridWidth: 3
-  GridHeight: 3
+  GridWidth: 2
+  GridHeight: 4
   MachineSprite: {fileID: 0}
   Icon: {fileID: 0}

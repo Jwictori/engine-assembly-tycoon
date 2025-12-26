@@ -84,7 +84,7 @@ namespace EngineAssemblyTycoon.Machines
             UnityEngine.Debug.Log($"Part {part.PartID} added to queue at {machineComponent?.MachineID}. Queue size: {waitingParts.Count}");
 
             // Position part visually near machine
-            PositionPartInQueue(part);
+            UpdateQueuePositions();
 
             // If machine is idle, start processing immediately
             if (autoProcessNext && machineComponent != null && machineComponent.Status == MachineStatus.Idle)
@@ -126,6 +126,9 @@ namespace EngineAssemblyTycoon.Machines
             }
 
             Core.Part nextPart = waitingParts.Dequeue();
+
+            // Update remaining parts' positions
+            UpdateQueuePositions();
 
             // Record this operation in part's history
             nextPart.RecordOperation(
@@ -190,19 +193,22 @@ namespace EngineAssemblyTycoon.Machines
         #endregion
 
         #region Visual Positioning
-        private void PositionPartInQueue(Core.Part part)
+        /// <summary>
+        /// Update visual positions of all parts in queue
+        /// </summary>
+        private void UpdateQueuePositions()
         {
-            // Position parts in a line near the machine
-            // This is a simple visual representation
             Vector3 machinePos = transform.position;
-            int queuePosition = waitingParts.Count - 1; // -1 because we just enqueued
-
-            // Offset to the left of machine
             Vector3 queueOffset = new Vector3(-1.5f, 0f, 0f);
             Vector3 spacing = new Vector3(0f, -0.4f, 0f); // Stack vertically
 
-            Vector3 targetPos = machinePos + queueOffset + (spacing * queuePosition);
-            part.MoveTo(new Vector2(targetPos.x, targetPos.y));
+            int position = 0;
+            foreach (Core.Part queuedPart in waitingParts)
+            {
+                Vector3 targetPos = machinePos + queueOffset + (spacing * position);
+                queuedPart.MoveTo(new Vector2(targetPos.x, targetPos.y));
+                position++;
+            }
         }
         #endregion
 
